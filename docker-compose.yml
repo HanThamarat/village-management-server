@@ -1,0 +1,45 @@
+# เวอร์ชั่น docker compose ที่ใช้ในการ build
+version: '3.8'
+
+# service ที่ทั้งหมดที่ใช้
+services:
+  # pg database
+  postgreSql:
+    restart: always
+    platform: linux/x86_64
+    image: postgres:latest
+    ports:
+      - 5432:5432
+    volumes:
+      - .docker/postgreSql:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_USER=root
+      - POSTGRES_DB=payment
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    
+  # server:
+  #   restart: always
+  #   platform: linux/x86_64
+  #   build: ./
+  #   ports:
+  #     - 8888:8888
+  #   volumes:
+  #     - ./:/app
+  #   networks:
+  #     - backend
+  #   depends_on:
+  #     postgreSql:
+  #       condition: service_healthy
+    
+
+
+networks:
+  backend:
+    driver: bridge
